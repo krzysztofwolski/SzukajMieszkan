@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 __author__ = 'krzyh'
 from collections import namedtuple
 import urllib2
@@ -86,7 +87,44 @@ class Gumtree(Portal):
 
 
 
-portals = [Gumtree(), Olx()]
+class Otodom(Portal):
+
+    def __init__(self):
+        super(Otodom, self).__init__()
+        self.name = "otodom"
+        self.url = "http://otodom.pl/index.php?mod=listing&act=&" \
+                   "source=main&Search=Search&objSearchQuery.ObjectName=Flat" \
+                   "&objSearchQuery.OfferType=rent&Location=dolnośląskie" \
+                   "%2C+Wrocław&objSearchQuery.Distance=0&objSearchQuery." \
+                   "LatFrom=&objSearchQuery.LatTo=&objSearchQuery.LngFrom=" \
+                   "&objSearchQuery.LngTo=&objSearchQuery.PriceFrom=1+000" \
+                   "&objSearchQuery.PriceTo=2+500&objSearchQuery.AreaFrom=" \
+                   "&objSearchQuery.AreaTo=&objSearchQuery.FlatRoomsNumFrom=" \
+                   "3&objSearchQuery.FlatRoomsNumTo=3&objSearchQuery.FlatFloor" \
+                   "From=&objSearchQuery.FlatFloorTo=&objSearchQuery.Flat" \
+                   "FloorsNoFrom=&objSearchQuery.FlatFloorsNoTo=" \
+                   "&objSearchQuery.FlatBuildingType=&objSearchQuery." \
+                   "Heating=&objSearchQuery.BuildingYearFrom=&objSearchQuery" \
+                   ".BuildingYearTo=&objSearchQuery.FlatFreeFrom=" \
+                   "&objSearchQuery.CreationDate=&objSearchQuery." \
+                   "Description=&objSearchQuery.offerId="
+
+    def update_apartments(self, silence=True):
+        page = urllib2.urlopen(self.url)
+        soup = BeautifulSoup.BeautifulSoup(page.read())
+        details = soup.findAll(
+            'h1',
+            {
+                'class': re.compile(r".*\bod-listing_item-title\b.*")
+            }
+        )
+
+        for detail in details:
+            url = "http://otodom.pl" + detail.findAll('a')[0]['href']
+            self.add_apartment("", "", url, silence=silence)
+
+
+portals = [Gumtree(), Olx(), Otodom()]
 
 for portal in portals:
         portal.update_apartments()
