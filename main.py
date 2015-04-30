@@ -22,12 +22,12 @@ class Portal(object):
         return
 
     def add_apartment(self, title, price, url, silence=True):
-        if url not in self.apartments.keys():
+        if title not in self.apartments.keys():
             nao = datetime.datetime.now()
             print nao.hour, ":", nao.minute, "\t", url
             if not silence:
                 system('say Something on ' + self.name)
-            self.apartments[url] = Apartment(title, price, url)
+            self.apartments[title] = Apartment(title, price, url)
 
     def __str__(self):
         for i, apartment in enumerate(self.apartments):
@@ -60,7 +60,7 @@ class Olx(Portal):
         )
 
         for detail in details:
-            self.add_apartment("", "", detail['href'], silence=silence)
+            self.add_apartment(detail['href'], "", detail['href'], silence=silence)
 
 
 class Gumtree(Portal):
@@ -83,7 +83,9 @@ class Gumtree(Portal):
         )
 
         for detail in details:
-            self.add_apartment("", "", detail['href'], silence=silence)
+            ending = len(detail['href'].split('-')[-1])
+            title = detail['href'][:-ending]
+            self.add_apartment(detail['href'], "", detail['href'], silence=silence)
 
 
 
@@ -121,7 +123,7 @@ class Otodom(Portal):
 
         for detail in details:
             url = "http://otodom.pl" + detail.findAll('a')[0]['href']
-            self.add_apartment("", "", url, silence=silence)
+            self.add_apartment(url, "", url, silence=silence)
 
 
 portals = [Gumtree(), Olx(), Otodom()]
